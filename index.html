@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1a1030" />
+  <title>GROK SPOOKS</title>
+  <link rel="stylesheet" href="style.css?v=1" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a1030'/%3E%3Cpath d='M14 54V28a18 18 0 0 1 36 0v26l-6-5-6 5-6-5-6 5-6-5z' fill='%23e8fff0'/%3E%3Ccircle cx='26' cy='28' r='4' fill='%231a1030'/%3E%3Ccircle cx='38' cy='28' r='4' fill='%231a1030'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="tags"></div>
+
+  <div id="hud" class="hidden">
+    <div id="hudL">
+      <div id="hearts"></div>
+      <div class="pills">
+        <div class="pill">&#129689; <b id="nCoins">0</b></div>
+        <div class="pill">&#128142; <b id="nGems">0</b></div>
+        <div class="pill">&#128123; <b id="nBoos">0</b></div>
+        <div class="pill hidden" id="pKey">&#128273;</div>
+      </div>
+      <div id="mates"></div>
+    </div>
+    <div id="hudR">
+      <button id="bMute" class="rbtn" type="button" aria-label="Sound">&#128266;</button>
+      <button id="bMap" class="rbtn" type="button" aria-label="Map">&#128506;&#65039;</button>
+      <button id="bPause" class="rbtn" type="button" aria-label="Pause">&#10074;&#10074;</button>
+    </div>
+    <div id="roomPill" class="pill"></div>
+    <div id="codeBadge" class="hidden"></div>
+    <div id="hint" class="hidden"></div>
+    <div id="bossBar" class="hidden"><span id="bossName"></span><div><b id="bossHp"></b></div></div>
+    <div id="tugPanel" class="hidden"><div class="tugTop">GHOST HP <b id="tugHp">0</b></div><div class="slam"><i id="tugBar"></i><span>SLAM</span></div><div id="tugTip"></div></div>
+    <div id="joyzone"><div id="joybase"><div id="joyknob"></div></div><div id="joyhint">DRAG TO WALK</div></div>
+    <div id="btns">
+      <button id="bDark" class="cbtn dark" type="button"><i>&#128302;</i><b>DARK</b></button>
+      <button id="bPlunge" class="cbtn plunge" type="button"><i>&#129696;</i><b>PLUNGER</b></button>
+      <button id="bSwap" class="cbtn swap" type="button"><i>&#129440;</i><b>SWAP</b></button>
+      <button id="bBlow" class="cbtn blow" type="button"><i>&#128168;</i><b>BLOW</b></button>
+      <button id="bFlash" class="cbtn flash" type="button"><i>&#128294;</i><b>FLASH</b></button>
+      <button id="bVac" class="cbtn vac" type="button"><i>&#127744;</i><b>VAC</b></button>
+    </div>
+  </div>
+  <div id="toasts"></div>
+  <div id="banner" class="hidden"></div>
+
+  <div id="scrTitle" class="screen">
+    <div class="card title">
+      <div class="logo"><span class="lg1">GROK</span><span class="lg2">SPOOKS</span></div>
+      <div class="ghostbob">&#128123;</div>
+      <div class="tagline">Flash &middot; Vac &middot; Solve &middot; Save Grok Manor!</div>
+      <div class="row prof">
+        <input id="nameIn" maxlength="12" placeholder="Your name" autocomplete="off" />
+        <div id="colorRow" class="swatches"></div>
+      </div>
+      <div id="heroRow"></div>
+      <div class="btncol">
+        <button id="bPlay" class="btn primary" type="button">PLAY</button>
+        <button id="bOnline" class="btn blue" type="button">PLAY WITH FRIENDS</button>
+        <button id="bHow" class="btn alt small" type="button">HOW TO PLAY</button>
+        <label class="toggle"><input type="checkbox" id="assistT" /> <span>Assist mode: +2 hearts, half damage, slower attacks, faster vacuum</span></label>
+      </div>
+      <p class="foot" id="titleFoot"></p>
+      <a id="arcadeLink" class="foot link" href="https://lizethbran13-cmyk.github.io/grok-arcade/">&larr; Grok Arcade</a>
+    </div>
+  </div>
+
+  <div id="scrOnline" class="screen hidden">
+    <div class="card">
+      <h2>PLAY WITH FRIENDS</h2>
+      <p class="sub">2&ndash;3 ghost hunters, each on their own phone. Explore the same mansion, solve puzzles together and tug ghosts as a team. Everyone keeps their own save!</p>
+      <button id="bHost" class="btn primary" type="button">HOST A ROOM</button>
+      <div class="or">or join a friend&rsquo;s room</div>
+      <div class="row join">
+        <input id="codeIn" maxlength="5" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+        <button id="bJoin" class="btn blue" type="button">JOIN</button>
+      </div>
+      <div id="onlineMsg" class="msg"></div>
+      <button id="bOnlineBack" class="btn alt small" type="button">BACK</button>
+    </div>
+  </div>
+
+  <div id="scrPause" class="screen hidden top">
+    <div class="card">
+      <h2>PAUSED</h2>
+      <div class="btncol">
+        <button id="bResume" class="btn primary" type="button">RESUME</button>
+        <div class="btnrow tight">
+          <button id="bPMap" class="btn blue small" type="button">&#128506;&#65039; MAP</button>
+          <button id="bPShop" class="btn green small" type="button">&#11088; UPGRADES</button>
+        </div>
+        <div class="btnrow tight">
+          <button id="bPGal" class="btn alt small" type="button">&#128123; GHOSTS</button>
+          <button id="bPHow" class="btn alt small" type="button">&#10067; HOW TO</button>
+        </div>
+        <button id="bPCp" class="btn alt small" type="button">BACK TO ROOM DOOR</button>
+        <label class="toggle"><input type="checkbox" id="assistT2" /> <span>Assist mode</span></label>
+        <button id="bPQuit" class="btn red small" type="button">QUIT TO TITLE</button>
+      </div>
+      <p class="foot" id="pauseHint"></p>
+    </div>
+  </div>
+
+  <div id="scrMap" class="screen hidden top"><div class="card wide"><h2>MAP</h2><div id="mapBody"></div><button id="bMapBack" class="btn primary small" type="button">BACK</button></div></div>
+  <div id="scrShop" class="screen hidden top"><div class="card wide"><h2>&#11088; PROFESSOR GROK&rsquo;S LAB</h2><div id="shopBody"></div><button id="bShopBack" class="btn primary small" type="button">BACK</button></div></div>
+  <div id="scrElev" class="screen hidden top"><div class="card wide"><h2>&#8597;&#65039; ELEVATOR</h2><p class="sub">Pick a floor</p><div id="elevList"></div><button id="bElevBack" class="btn alt small" type="button">STAY HERE</button></div></div>
+  <div id="scrGallery" class="screen hidden top"><div class="card wide"><h2>&#128123; GHOST GALLERY</h2><div id="galBody"></div><button id="bGalBack" class="btn primary small" type="button">BACK</button></div></div>
+  <div id="scrBoss" class="screen hidden top"><div class="card" id="bossCard"></div></div>
+  <div id="scrEnd" class="screen hidden top"><div class="card"><h2>&#127942; YOU SAVED GROK MANOR!</h2><p class="sub">Ghost King Grumbleton is in the Grok-Vac and every floor is glowing again. Thank you, ghost hunter!</p><p class="sub">Keep exploring: find every gem and Boo, upgrade your gear, and some lit rooms get haunted again for bonus coins.</p><button id="bEndGo" class="btn primary" type="button">KEEP HUNTING</button></div></div>
+
+  <div id="scrHow" class="screen hidden top">
+    <div class="card help">
+      <h2>HOW TO PLAY</h2>
+      <ol>
+        <li><b>Walk</b> with the left stick. Your flashlight points where you walk.</li>
+        <li><b>FLASH</b> stuns ghosts. Then hold <b>VAC</b> to suck them in. Pull the stick <b>away</b> from the ghost to drain its HP faster. When the meter fills, tap <b>SLAM!</b></li>
+        <li><b>BLOW</b> pushes crates, turns mirrors, spins pinwheels and fires back things you caught with VAC.</li>
+        <li><b>PLUNGER</b> yanks sunglasses, helmets and hats off, and pulls levers and crates.</li>
+        <li><b>DARK</b> light reveals invisible ghosts, hidden switches, secret doors and gems.</li>
+        <li><b>VAC</b> curtains, rugs, cobwebs and furniture to find coins, hearts and gems!</li>
+        <li><b>Puzzles</b> need two hunters. Play with a friend, or tap <b>SWAP</b> to make a green <b>Goo clone</b> and switch between you. If you swap while holding VAC, BLOW or DARK, the one you leave keeps doing it.</li>
+        <li>Clear every ghost to turn the <b>lights back on</b>. Find the area <b>key</b> for the gold door to the <b>boss</b>. Beat the boss to unlock the next floor in the elevator.</li>
+        <li>Spend coins on <b>upgrades</b> (pause menu). Candy the ghost dog barks near hidden gems and Boos.</li>
+        <li>Got spooked? In co-op a friend revives you by standing next to you. Solo, you pop back at the room door. No game over!</li>
+      </ol>
+      <button id="bHowBack" class="btn primary" type="button">GOT IT</button>
+    </div>
+  </div>
+
+  <script src="three.min.js"></script>
+  <script src="peerjs.min.js"></script>
+  <script src="grok-net.js"></script>
+  <script src="js/data.js?v=1"></script>
+  <script src="js/room.js?v=1"></script>
+  <script src="js/models.js?v=1"></script>
+  <script src="js/audio.js?v=1"></script>
+  <script src="js/sim.js?v=1"></script>
+  <script src="js/view.js?v=1"></script>
+  <script src="js/game.js?v=1"></script>
+  <script src="js/net.js?v=1"></script>
+  <script src="js/ui.js?v=1"></script>
+  <script>SP.G.boot();</script>
+</body>
+</html>
