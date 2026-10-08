@@ -153,3 +153,4 @@ body.kbd #btns { opacity: .9; }
   #toasts { top: calc(96px + var(--st)); }
 }
 @media (orientation: portrait) { .pills { max-width: calc(100vw - 190px); } }
+@media (orientation: portrait) { #roomPill { left: auto; right: calc(8px + var(--sr)); transform: none; top: calc(64px + var(--st)); max-width: 52vw; } #hint { top: calc(112px + var(--st)); } }
