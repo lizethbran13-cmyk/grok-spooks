@@ -234,10 +234,10 @@ function syncEnts(dt, time, ctx) {
     const m = v.m, g = m.userData.g; m.position.set(v.x, 0, v.z);
     let ry = e.ang || 0; if (e.st === 'tug') ry = (e.pd || 0) + Math.PI; m.rotation.y += SP.angDiff(m.rotation.y, ry) * Math.min(1, dt * 8);
     const d = SP.EN[e.k] || {}; const fly = d.fly ? (e.y || 1.2) - 1.2 : 0;
-    g.position.y = (e.k === 'boss' && e.b === 'mandrake' ? 0 : (d.walk ? 0 : 0.35 + Math.sin(time * 2.5 + e.id) * 0.12)) + fly;
+    g.position.y = (e.k === 'boss' && (e.b === 'mandrake' || e.b === 'roborat') ? 0 : (d.walk ? 0 : 0.35 + Math.sin(time * 2.5 + e.id) * 0.12)) + fly;
     const hide = e.st === 'hide'; m.visible = !hide;
-    v.stars.visible = e.st === 'stun' || e.st === 'open' || e.st === 'dizzy' || e.st === 'stuck' || e.st === 'tired' || e.st === 'exposed' || e.st === 'bones'; if (v.stars.visible) v.stars.material.rotation = time * 3;
-    v.ex.visible = e.st === 'wind' || e.st === 'aim' || e.st === 'cast' || e.st === 'pound' || e.st === 'beam' || e.st === 'fanw' || e.st === 'slamw' || e.st === 'vines';
+    v.stars.visible = e.st === 'stun' || e.st === 'open' || e.st === 'dizzy' || e.st === 'stuck' || e.st === 'tired' || e.st === 'exposed' || e.st === 'bones' || e.st === 'overheat'; if (v.stars.visible) v.stars.material.rotation = time * 3;
+    v.ex.visible = e.st === 'laser' || e.st === 'bombs' || e.st === 'wind' || e.st === 'aim' || e.st === 'cast' || e.st === 'pound' || e.st === 'beam' || e.st === 'fanw' || e.st === 'slamw' || e.st === 'vines';
     let sc = 1;
     if (e.st === 'spawn') sc = 0.3 + (1 - Math.max(0, Math.min(1, (e.t || 0) / 0.8))) * 0.7;
     if (e.st === 'tug') { const s = 1 + Math.sin(time * 22) * 0.06; g.scale.set((g.userData.bs || 1) * s, (g.userData.bs || 1) / s, (g.userData.bs || 1) * (1.15 + Math.sin(time * 15) * 0.1)); } else if (g.userData.bs) g.scale.setScalar(g.userData.bs * sc); else { g.userData.bs = g.scale.x; }
@@ -256,6 +256,8 @@ function syncEnts(dt, time, ctx) {
       if (g.userData.books) { g.userData.books.rotation.y += dt * 2.5; g.userData.books.visible = e.st !== 'open' && e.st !== 'tug'; }
       if (g.userData.hat) { g.userData.hat.rotation.z = e.st === 'stuck' ? 0.5 : 0; g.userData.hat.visible = !(e.st === 'open' || e.st === 'tug'); }
       if (e.b === 'mandrake') { const gh = g.userData.ghost; if (gh) { const out = e.st === 'open' || e.st === 'tug'; gh.position.y = out ? 1.6 : 0.6 + Math.sin(time * 2) * 0.1; } syncBulbs(v, e, time); }
+      if (e.b === 'roborat') { const u = g.userData; if (u.steam) { u.steam.visible = e.st === 'overheat'; u.steam.children.forEach((q, i) => { q.position.y = ((time * 1.2 + i * 0.3) % 1.5); q.material.opacity = 0.7 - q.position.y * 0.4; }); } if (u.battery) u.battery.visible = !(e.st === 'open' || e.st === 'tug'); if (u.ghost) { u.ghost.position.y = (e.st === 'open' || e.st === 'tug' ? 3.4 : 2.7) + Math.sin(time * 3) * 0.1; } g.rotation.z = e.st === 'overheat' ? Math.sin(time * 30) * 0.03 : 0; }
+      if (e.b === 'cheddar') { g.visible = !e.hid; m.userData.glow.visible = !e.hid; syncBulbs(v, e, time); }
       if (e.st === 'dash' || e.b === 'waltzy') g.rotation.y = e.st === 'dash' || e.st === 'dizzy' ? time * (e.st === 'dizzy' ? 4 : 14) : 0;
     }
   }
@@ -263,6 +265,8 @@ function syncEnts(dt, time, ctx) {
 }
 function syncBulbs(v, e, time) {
   const bu = e.bulbs || [];
+  if (e.b === 'cheddar') { while (v.bulbs.length < bu.length) { const g = new T.Group(); const wh = M.mesh(new T.CylinderGeometry(0.8, 0.8, 0.55, 24), new T.MeshLambertMaterial({ color: '#ffd23f', emissive: '#7a5a00' }), 0, 1.1, 0, g); wh.rotation.x = Math.PI / 2; [[0.3, 0.2], [-0.35, -0.2], [0.1, -0.45]].forEach((p) => { const h = M.S(0.12, M.bas('#c08a00'), p[0], 1.1 + p[1], 0.28, g, 8); h.scale.z = 0.3; }); const s = wh; const gl = M.glow('#fff36b', 2.6, 0); gl.position.y = 1.1; g.add(gl); const sh = M.disc(0.7, '#000000', 0.3); sh.position.y = 0.02; g.add(sh); g.userData = { s, gl, cheese: 1 }; entG.add(g); v.bulbs.push(g); }
+    v.bulbs.forEach((g, i) => { const u = bu[i]; g.visible = !!u && !u.pop; if (!u) return; g.position.set(u.x, Math.sin(time * 2 + i) * 0.15, u.z); g.rotation.y = time * 1.5 + i; g.userData.gl.material.opacity = u.rev ? 0.95 : 0; g.userData.s.material.emissive.set(u.rev ? '#ffe14d' : '#7a5a00'); }); return; }
   while (v.bulbs.length < bu.length) { const g = new T.Group(); M.C(0.06, 1, '#3fbf4f', 0, 0, 0, g); const s = M.S(0.42, new T.MeshBasicMaterial({ color: '#d86bff' }), 0, 1.2, 0, g); const gl = M.glow('#ffffff', 2, 0); gl.position.y = 1.2; g.add(gl); g.userData = { s, gl }; entG.add(g); v.bulbs.push(g); }
   v.bulbs.forEach((g, i) => { const u = bu[i]; g.visible = !!u && !u.pop; if (!u) return; g.position.set(u.x, 0, u.z); g.userData.gl.material.opacity = u.rev ? 0.9 : 0; g.userData.s.material.color.set(u.rev ? '#fff36b' : '#d86bff'); g.scale.y = 1 + Math.sin(time * 4 + i) * 0.05; });
 }
@@ -290,7 +294,7 @@ function syncProj(dt, time) {
   const seen = {};
   for (const p of W.proj) {
     seen[p.id] = 1; let m = projs[p.id];
-    if (!m) { m = new T.Group(); if (p.k === 'orb') { M.S(p.big ? 0.4 : 0.3, M.bas('#ff9cff'), 0, 0, 0, m); m.add(M.glow('#d86bff', p.big ? 2.6 : 2, 0.9)); } else { const c = { book: '#3fa8ff', pot: '#c0c8d8', obj: '#e84a5f' }[p.k] || '#e84a5f'; M.B(0.4, 0.15, 0.5, M.bas(c), 0, 0, 0, m); m.add(M.glow(p.refl ? '#3ff0ff' : '#ff9a6b', 1.4, 0.6)); } m.position.set(p.x, 1, p.z); projs[p.id] = m; entG.add(m); }
+    if (!m) { m = new T.Group(); if (p.k === 'orb' && W.boss && W.boss.b === 'cheddar') { M.S(0.42, M.lam('#ffd23f', { emissive: '#8a6a00' }), 0, 0, 0, m); M.S(0.1, M.bas('#c08a00'), 0.2, 0.15, 0.3, m, 6); m.add(M.glow('#ffb020', 2.6, 0.9)); } else if (p.k === 'orb') { M.S(p.big ? 0.4 : 0.3, M.bas('#ff9cff'), 0, 0, 0, m); m.add(M.glow('#d86bff', p.big ? 2.6 : 2, 0.9)); } else { const c = { book: '#3fa8ff', pot: '#c0c8d8', obj: '#e84a5f' }[p.k] || '#e84a5f'; M.B(0.4, 0.15, 0.5, M.bas(c), 0, 0, 0, m); m.add(M.glow(p.refl ? '#3ff0ff' : '#ff9a6b', 1.4, 0.6)); } m.position.set(p.x, 1, p.z); projs[p.id] = m; entG.add(m); }
     m.position.x += (p.x - m.position.x) * Math.min(1, dt * 18); m.position.z += (p.z - m.position.z) * Math.min(1, dt * 18); m.position.y = 1; m.rotation.y += dt * 9; m.rotation.x += dt * 5;
     if (p.refl && !m.userData.r) { m.userData.r = 1; m.add(M.glow('#3ff0ff', 2, 0.9)); }
   }

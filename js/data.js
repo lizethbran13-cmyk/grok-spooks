@@ -16,7 +16,12 @@ SP.AREAS = [
   { id: 'crypt', n: 'Museum & Crypt', icon: '\u26B1\uFE0F', floor: 'Floor 4', hub: 'egypt',
     pal: { floor: '#4a3f2a', floor2: '#61553a', wall: '#3a3428', trim: '#e2b84a', lit: '#fff0c0', fog: '#1a160c' }, props: ['statue', 'sarco', 'urn', 'pillar', 'case', 'coffin', 'urn', 'crate', 'bench', 'vase'] },
   { id: 'tower', n: 'Clock Tower', icon: '\uD83D\uDD70\uFE0F', floor: 'Top Floor', hub: 'gears',
-    pal: { floor: '#3a2f45', floor2: '#4d3f5c', wall: '#2a2340', trim: '#b4b4d8', lit: '#e6e0ff', fog: '#120d20' }, props: ['gear', 'clock', 'crate', 'trunk', 'chair', 'barrel', 'mirror', 'cabinet', 'sacks', 'trunk'] }
+    pal: { floor: '#3a2f45', floor2: '#4d3f5c', wall: '#2a2340', trim: '#b4b4d8', lit: '#e6e0ff', fog: '#120d20' }, props: ['gear', 'clock', 'crate', 'trunk', 'chair', 'barrel', 'mirror', 'cabinet', 'sacks', 'trunk'] },
+  // Ratita Industries Super Pack (DLC)
+  { id: 'ratlab', n: 'Ratita Industries Lab', icon: '\uD83D\uDC00', floor: 'Lab B1', hub: 'ratlobby', dlc: 1,
+    pal: { floor: '#24304a', floor2: '#2f4066', wall: '#1d2a44', trim: '#3ff0ff', lit: '#d8fbff', fog: '#08101e' }, props: ['console', 'tank', 'cheese', 'robot', 'crate', 'console', 'tank', 'cabinet', 'barrel', 'cheese'] },
+  { id: 'ratdeep', n: 'Cheese Vault Depths', icon: '\uD83E\uDDC0', floor: 'Lab B2', hub: 'ratcryo', dlc: 1,
+    pal: { floor: '#3a3018', floor2: '#55471f', wall: '#2c2410', trim: '#ffd23f', lit: '#fff4c0', fog: '#141005' }, props: ['cheese', 'cheese', 'tank', 'console', 'crate', 'barrel', 'robot', 'cheese', 'sacks', 'tank'] }
 ];
 
 /* ---- rooms ----
@@ -64,7 +69,17 @@ SP.ROOMS = [
   { id: 'attic', n: 'Attic', a: 5, gx: 0, gy: 2, w: 18, d: 14, waves: [['invis', 'swarm'], ['bat', 'bat']], puz: 'dark', boo: true, gems: ['web'] },
   { id: 'bells', n: 'Bell Loft', a: 5, gx: 2, gy: 2, w: 18, d: 14, waves: [['skeleton', 'shades']], puz: 'levers', gems: ['chest'] },
   { id: 'clockface', n: 'Clock Face', a: 5, gx: 1, gy: 1, w: 20, d: 14, waves: [['brute', 'polter']], puz: 'beam', key: true, gems: ['curtain', 'dark'] },
-  { id: 'belfry', n: 'Tower Top', a: 5, gx: 1, gy: 0, w: 22, d: 16, boss: 'grumbleton', gems: [] }
+  { id: 'belfry', n: 'Tower Top', a: 5, gx: 1, gy: 0, w: 22, d: 16, boss: 'grumbleton', gems: [] },
+  // 7 Ratita Industries Lab (DLC)
+  { id: 'ratlobby', n: 'Lab Lobby', a: 6, gx: 1, gy: 2, w: 20, d: 14, hub: true, waves: [['goob', 'bat', 'goob']], gems: ['furn'], hint: 'Welcome to Ratita Industries! Something haunted the robots down here. Clear the lab to reach the Robo Core.' },
+  { id: 'robotics', n: 'Robotics Bay', a: 6, gx: 0, gy: 2, w: 18, d: 14, waves: [['armor', 'swarm'], ['shieldy', 'shieldy']], puz: 'levers', gems: ['chest'], hint: 'Pull both levers with the PLUNGER at the same time to reboot the bay!' },
+  { id: 'testlab', n: 'Test Chamber', a: 6, gx: 2, gy: 2, w: 18, d: 14, waves: [['invis', 'polter']], puz: 'plates', key: true, gems: ['web', 'dark'] },
+  { id: 'ratcore', n: 'Robo Core', a: 6, gx: 1, gy: 1, w: 22, d: 16, boss: 'roborat', gems: [] },
+  // 8 Cheese Vault Depths (DLC)
+  { id: 'ratcryo', n: 'Cryo Freezer', a: 7, gx: 1, gy: 2, w: 20, d: 14, hub: true, waves: [['skeleton', 'witch']], gems: ['furn'], hint: 'Brrr! The Cheese Vault is deeper in. Find the key!' },
+  { id: 'curing', n: 'Cheese Curing Room', a: 7, gx: 0, gy: 2, w: 18, d: 14, waves: [['hider', 'hider', 'goob'], ['swarm', 'slammer']], puz: 'paint', key: true, gems: ['chest', 'curtain'] },
+  { id: 'mirrorlab', n: 'Laser Lab', a: 7, gx: 2, gy: 2, w: 18, d: 14, waves: [['shades', 'brute']], puz: 'beam', gems: ['clear', 'dark'] },
+  { id: 'cheesevault', n: 'The Cheese Vault', a: 7, gx: 1, gy: 1, w: 22, d: 16, boss: 'cheddar', gems: [] }
 ];
 /* connections; lock 'key' = needs area key, 'dark' = invisible door (reveal with DARK) */
 SP.LINKS = [
@@ -73,7 +88,9 @@ SP.LINKS = [
   ['pantry', 'kitchen'], ['kitchen', 'bakery'], ['kitchen', 'cold'], ['bakery', 'scullery'], ['kitchen', 'banquet', 'key'],
   ['shed', 'fern'], ['shed', 'pond'], ['fern', 'cactus'], ['pond', 'orchid'], ['shed', 'dome', 'key'],
   ['egypt', 'armory'], ['egypt', 'bones'], ['egypt', 'cryptst'], ['cryptst', 'tomb', 'dark'], ['cryptst', 'pharaoh', 'key'],
-  ['gears', 'attic'], ['gears', 'bells'], ['gears', 'clockface'], ['clockface', 'belfry', 'key']
+  ['gears', 'attic'], ['gears', 'bells'], ['gears', 'clockface'], ['clockface', 'belfry', 'key'],
+  ['ratlobby', 'robotics'], ['ratlobby', 'testlab'], ['ratlobby', 'ratcore', 'key'],
+  ['ratcryo', 'curing'], ['ratcryo', 'mirrorlab'], ['ratcryo', 'cheesevault', 'key']
 ];
 SP.room = (id) => SP.ROOMS.find((r) => r.id === id);
 SP.areaRooms = (a) => SP.ROOMS.filter((r) => r.a === a);
@@ -113,7 +130,7 @@ SP.EN = {
   boo: { n: 'Boo', hp: 40, sp: 2.3, col: '#ffffff', r: 0.55, coins: 50, how: 'Find it in furniture, FLASH it when it faces you.' }
 };
 SP.EN_ORDER = ['goob', 'slammer', 'hider', 'bat', 'shades', 'shieldy', 'polter', 'invis', 'swarm', 'brute', 'witch', 'mummy', 'skeleton', 'armor', 'boo'];
-SP.AREA_POOL = [['goob', 'slammer', 'hider', 'bat'], ['goob', 'polter', 'shades', 'invis', 'swarm'], ['goob', 'shieldy', 'swarm', 'hider', 'polter'], ['bat', 'invis', 'witch', 'hider', 'slammer'], ['mummy', 'skeleton', 'armor', 'bat'], ['armor', 'witch', 'skeleton', 'shades', 'invis']];
+SP.AREA_POOL = [['goob', 'slammer', 'hider', 'bat'], ['goob', 'polter', 'shades', 'invis', 'swarm'], ['goob', 'shieldy', 'swarm', 'hider', 'polter'], ['bat', 'invis', 'witch', 'hider', 'slammer'], ['mummy', 'skeleton', 'armor', 'bat'], ['armor', 'witch', 'skeleton', 'shades', 'invis'], ['armor', 'shieldy', 'swarm', 'invis'], ['skeleton', 'witch', 'shades', 'hider']];
 
 /* ---- bosses ---- */
 SP.BOSS = {
@@ -122,7 +139,9 @@ SP.BOSS = {
   souffle: { n: 'Chef Souffl\u00e9', hp: 180, col: '#ffd0a0', tip: 'After his big belly-slam his hat gets stuck: PLUNGER it off!' },
   mandrake: { n: 'Mama Mandrake', hp: 190, col: '#7dff6b', tip: 'Three bulbs pop up. Use DARK to find the glowing real one, then FLASH it!' },
   mumbles: { n: 'King Mumbles', hp: 200, col: '#ffe08a', tip: 'When he rests after a sand beam, VAC his bandages off, then FLASH!' },
-  grumbleton: { n: 'Ghost King Grumbleton', hp: 260, col: '#8affff', tip: 'BLOW his orbs back to stun him, or FLASH him when he gets dizzy after dashing!' }
+  grumbleton: { n: 'Ghost King Grumbleton', hp: 260, col: '#8affff', tip: 'BLOW his orbs back to stun him, or FLASH him when he gets dizzy after dashing!' },
+  roborat: { n: 'MECHA-RATITA 3000', hp: 230, col: '#3ff0ff', dlc: 1, tip: 'A haunted giant robo-rat! Dodge the red laser lines and cheese bombs. When it OVERHEATS and steams, PLUNGER its battery out, then VAC!' },
+  cheddar: { n: 'The Cheddar Phantom', hp: 250, col: '#ffd23f', dlc: 1, tip: 'He splits into 3 cheese wheels: hold DARK to find the glowing real one and FLASH it! You can also BLOW his cheese orbs back at him.' }
 };
 
 /* ---- heroes & upgrades ---- */

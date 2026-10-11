@@ -97,7 +97,7 @@ function mapScr(a) {
   const W = Sim.W(); a = a == null ? (W ? W.L.area : 0) : a; const s = G.save();
   let h = '<div class="tabs">' + SP.AREAS.map((A, i) => '<button type="button" class="tab' + (i === a ? ' on' : '') + (G.areaOpen(i) ? '' : ' lock') + '" data-a="' + i + '">' + A.icon + '<small>' + (G.areaOpen(i) ? A.floor : '\uD83D\uDD12') + '</small></button>').join('') + '</div>';
   const A = SP.AREAS[a]; h += '<h3>' + A.icon + ' ' + esc(A.n) + '</h3>';
-  if (!G.areaOpen(a)) h += '<p class="sub">Locked. Capture the boss of the ' + esc(SP.AREAS[a - 1].n) + ' to open this floor.</p>';
+  if (!G.areaOpen(a)) h += '<p class="sub">' + (SP.DLC.isDlcArea(a) && !SP.DLC.on() ? '\uD83D\uDC00 Part of the <b>Ratita Industries Super Pack</b>. Unlock it in the <a href="' + SP.DLC.SHOP + '">Grok Arcade DLC Shop</a> (25 \uD83C\uDF9F\uFE0F).' : 'Locked. Capture the boss of the ' + esc(SP.AREAS[a - 1].n) + ' to open this floor.') + '</p>';
   else {
     const rooms = SP.areaRooms(a); h += '<div class="mapgrid">';
     rooms.forEach((r) => {
@@ -119,7 +119,7 @@ UI.elevator = function () {
   if (GS.ui !== 'game') return;
   const s = G.save();
   let h = '';
-  SP.AREAS.forEach((A, i) => { const ok = G.areaOpen(i); h += '<button type="button" class="floor' + (ok ? '' : ' lock') + '" data-a="' + i + '"' + (ok ? '' : ' disabled') + '><i>' + A.icon + '</i><b>' + A.floor + ': ' + esc(A.n) + '</b><small>' + (ok ? '\uD83D\uDC8E ' + G.gemCount(i) + '/' + A.gemN + ' \u00B7 \uD83D\uDC7B ' + (s.boos[i] ? '\u2705' : '\u2753') + ' \u00B7 ' + (s.bosses[i] ? '\uD83C\uDFC6 boss caught' : 'boss: ?') : '\uD83D\uDD12 Capture the ' + esc(SP.AREAS[i - 1].n) + ' boss') + '</small></button>'; });
+  SP.AREAS.forEach((A, i) => { const ok = G.areaOpen(i); h += '<button type="button" class="floor' + (ok ? '' : ' lock') + '" data-a="' + i + '"' + (ok ? '' : ' disabled') + '><i>' + A.icon + '</i><b>' + A.floor + ': ' + esc(A.n) + '</b><small>' + (ok ? '\uD83D\uDC8E ' + G.gemCount(i) + '/' + A.gemN + ' \u00B7 \uD83D\uDC7B ' + (s.boos[i] ? '\u2705' : '\u2753') + ' \u00B7 ' + (s.bosses[i] ? '\uD83C\uDFC6 boss caught' : 'boss: ?') : (SP.DLC.isDlcArea(i) && !SP.DLC.on() ? '\uD83D\uDD12 DLC: Ratita Industries Super Pack (Grok Arcade DLC Shop)' : '\uD83D\uDD12 Capture the ' + esc(SP.AREAS[i - 1].n) + ' boss')) + '</small></button>'; });
   $('elevList').innerHTML = h;
   $('elevList').querySelectorAll('.floor').forEach((b) => { b.onclick = () => { const a = +b.dataset.a; Snd.fx('click'); if (GS.role === 'client') { G.N.send({ t: 'elev', a }); UI.closeAll(); } else { UI.closeAll(); G.goRoom(SP.AREAS[a].hub, null, true); } }; });
   open('elev');

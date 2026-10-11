@@ -19,7 +19,7 @@ G.persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } cat
 G.myName = () => GN.cleanName(save.name || 'Hunter');
 G.gemCount = (a) => Object.keys(save.gems).filter((k) => a == null || k.indexOf('g' + a + '_') === 0).length;
 G.booCount = () => Object.keys(save.boos).length;
-G.areaOpen = (a) => a === 0 || !!save.bosses[a - 1];
+G.areaOpen = (a) => { if (SP.DLC && SP.DLC.isDlcArea(a)) return SP.DLC.on() && (a === SP.DLC.FIRST_AREA || !!save.bosses[a - 1]); return a === 0 || !!save.bosses[a - 1]; };
 G.maxHp = () => (3 + (save.upg.heart || 0) + (save.assist ? 2 : 0)) * 2;
 Snd.setMuted(!!save.muted);
 
@@ -115,14 +115,14 @@ function onEv(e) {
     case 'loot': Snd.fx('pop'); V.burst(e.x, 1, e.z, '#ffe9a8', 8, 2.5, 0.35); break;
     case 'boo': Snd.fx('boo'); G.toast('\uD83D\uDC7B A Boo was hiding here! FLASH it when it looks at you.'); break;
     case 'boolaugh': Snd.fx('boo'); break;
-    case 'boocap': save.boos[e.a] = 1; G.persist(); G.banner('\uD83D\uDC7B BOO CAUGHT! ' + G.booCount() + '/' + SP.AREAS.length); break;
+    case 'boocap': save.boos[e.a] = 1; G.persist(); G.banner('\uD83D\uDC7B BOO CAUGHT! ' + G.booCount() + '/6'); break;
     case 'flush': Snd.fx('giggle'); G.toast('Found a hiding ghost!'); break;
     case 'pop': Snd.fx('giggle'); break;
     case 'wave': Snd.fx('giggle'); if (GS.roomT > 0.5) G.toast('More ghosts! \uD83D\uDC7B'); break;
     case 'boss': Snd.fx('boss'); G.UI.bossIntro(e.b); Snd.music('boss'); break;
     case 'bossopen': Snd.fx('stun'); G.toast('Now! Hold VAC! \uD83C\uDF00'); break;
     case 'bossfree': Snd.fx('wrong'); if (e.ph > 1) G.toast(e.timeout ? 'It got away! Try again.' : 'It broke free! Phase ' + e.ph + '!'); break;
-    case 'bossdown': { Snd.fx('bossdown'); V.shake(1.2); V.burst(e.x, 2, e.z, '#ffe14d', 40, 6, 0.8, 1.2); save.bosses[e.a] = 1; save.rooms[GS.rid] = 1; G.persist(); const nx = SP.AREAS[e.a + 1]; G.banner('\uD83C\uDFC6 ' + SP.BOSS[e.b].n + ' CAPTURED!' + (nx ? ' The elevator now goes to the ' + nx.n + '!' : ' You saved Grok Manor!'), 6); Snd.music('lit'); if (!nx) setTimeout(() => G.UI.ending(), 2500); break; }
+    case 'bossdown': { Snd.fx('bossdown'); V.shake(1.2); V.burst(e.x, 2, e.z, '#ffe14d', 40, 6, 0.8, 1.2); save.bosses[e.a] = 1; save.rooms[GS.rid] = 1; G.persist(); const dlcA = SP.DLC && SP.DLC.isDlcArea(e.a), nx = dlcA ? SP.AREAS[e.a + 1] : (e.a + 1 < 6 ? SP.AREAS[e.a + 1] : null); if (dlcA && !nx) { G.banner('\uD83C\uDFC6 ' + SP.BOSS[e.b].n + ' CAPTURED! Ratita Industries is safe again! \uD83D\uDC00\uD83E\uDDC0', 6); Snd.music('lit'); break; } G.banner('\uD83C\uDFC6 ' + SP.BOSS[e.b].n + ' CAPTURED!' + (nx ? ' The elevator now goes to the ' + nx.n + '!' : ' You saved Grok Manor!'), 6); Snd.music('lit'); if (!nx) setTimeout(() => G.UI.ending(), 2500); break; }
     case 'dizzy': Snd.fx('stun'); G.hintMsg('Dizzy! FLASH now!', 2.5); break;
     case 'stuckhat': G.hintMsg('His hat is stuck! PLUNGER it!', 3); break;
     case 'rest': G.hintMsg('He\u2019s resting! Hold VAC on his bandages!', 3); break;
@@ -141,6 +141,12 @@ function onEv(e) {
     case 'fire': Snd.fx('throwx'); break;
     case 'reflect': Snd.fx('mirror'); break;
     case 'throw': Snd.fx('throwx'); break;
+    case 'battery': Snd.fx('pop'); V.burst(e.x, 1.6, e.z, '#3ff0ff', 18, 4, 0.5); V.floatText(e.x, 3.2, e.z, 'BATTERY OUT!', '#3ff0ff'); break;
+    case 'overheat': Snd.fx('stun'); V.burst(e.x, 2.6, e.z, '#e8f4ff', 20, 2.5, 0.7, 1.4); G.hintMsg('OVERHEAT! PLUNGER its battery!', 3); break;
+    case 'split': Snd.fx('giggle'); V.burst(e.x, 1.4, e.z, '#ffd23f', 24, 4, 0.5); G.hintMsg('3 cheese wheels! Hold DARK to find the real one, then FLASH it!', 3.5); break;
+    case 'unsplit': Snd.fx('boo'); break;
+    case 'zap': Snd.fx('flash'); V.shake(0.4); break;
+    case 'charge': Snd.fx('cast'); break;
     case 'break': Snd.fx('breakx'); V.burst(e.x, 1, e.z, '#ffd0a0', 6, 2, 0.3); break;
     case 'cast': Snd.fx('cast'); break;
     case 'summon': Snd.fx('giggle'); V.burst(e.x, 1, e.z, '#b46bff', 14, 3); break;

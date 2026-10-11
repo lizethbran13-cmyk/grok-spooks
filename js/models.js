@@ -131,7 +131,24 @@ M.enemy = function (kind) {
 };
 M.boss = function (id) {
   const d = SP.BOSS[id]; const root = new T.Group(); let g;
-  if (id === 'mumbles') { g = M.enemy('mummy').userData.g; g.scale.setScalar(1.9); const crown = new T.Group(); crown.position.set(0, 1.95, 0); g.add(crown); B(0.7, 0.4, 0.5, lam('#2a5adf'), 0, 0, -0.05, crown); B(0.72, 0.1, 0.52, lam('#e2b84a'), 0, 0.15, -0.05, crown); C(0.08, 0.3, lam('#e2b84a'), 0, 0.4, 0.15, crown); }
+  if (id === 'roborat') { // MECHA-RATITA 3000: haunted giant robo-rat (DLC)
+    g = new T.Group(); const met = lam('#9fb4d8'), dk = lam('#3a4a6a'), cy = bas('#3ff0ff');
+    const bod = S(1.0, met, 0, 1.25, 0, g, 18); bod.scale.set(1.05, 0.95, 1.35);
+    B(1.2, 0.18, 1.6, dk, 0, 1.9, -0.1, g); S(0.62, met, 0, 1.75, 1.2, g, 16).scale.set(1, 0.9, 1.15); // head
+    S(0.16, lam('#ff8fb1'), 0, 1.7, 1.86, g, 10); // nose
+    for (const sx of [-1, 1]) { S(0.36, lam('#c8d4ea'), sx * 0.5, 2.35, 1.05, g, 12).scale.set(1, 1, 0.35); S(0.22, lam('#ff8fb1'), sx * 0.5, 2.35, 1.12, g, 10).scale.set(1, 1, 0.3); S(0.13, cy, sx * 0.24, 1.92, 1.68, g, 10); }
+    for (const sx of [-0.7, 0.7]) for (const sz of [-0.6, 0.7]) C(0.18, 0.55, dk, sx, 0, sz, g);
+    const tail = new T.Group(); tail.position.set(0, 1.0, -1.25); g.add(tail); for (let i = 0; i < 6; i++) S(0.12 - i * 0.012, lam(i % 2 ? '#ff8fb1' : '#c8d4ea'), 0, i * 0.1, -i * 0.32, tail, 8);
+    const bat = new T.Group(); bat.position.set(0, 2.1, -0.55); g.add(bat); C(0.26, 0.6, lam('#ffd23f'), 0, 0, 0, bat); C(0.12, 0.12, lam('#e84a5f'), 0, 0.6, 0, bat); B(0.3, 0.06, 0.06, cy, 0, 0.3, 0.26, bat); g.userData.battery = bat;
+    const steam = new T.Group(); steam.position.set(0, 2.4, -0.2); g.add(steam); for (let i = 0; i < 5; i++) S(0.25, new T.MeshBasicMaterial({ color: '#f2f8ff', transparent: true, opacity: 0.6 }), Math.cos(i) * 0.4, i * 0.3, Math.sin(i) * 0.4, steam, 8); steam.visible = false; g.userData.steam = steam;
+    const gh = ghostBody(d.col, 0.7, 0.5); gh.position.set(0, 2.7, 0.2); g.add(gh); g.userData.ghost = gh; // the ghost haunting it
+    const eyeL = g.children.filter((c) => c.material === cy); g.userData.eyes = eyeL;
+  } else if (id === 'cheddar') { // The Cheddar Phantom (DLC)
+    g = ghostBody(d.col, 1.9, 0.95);
+    const holes = bas('#d9a400'); [[0.3, 0.9, 0.45], [-0.35, 0.3, 0.5], [0.4, 0.2, 0.42], [-0.15, 1.0, 0.42]].forEach((p) => { const h = S(0.09, holes, p[0], p[1], p[2], g, 8); h.scale.set(1, 1, 0.4); });
+    const hat = new T.Group(); hat.position.set(0, 1.05, 0); g.add(hat); C(0.5, 0.35, lam('#ffd23f'), 0, 0, 0, hat, 0.5, 20); const wedge = new T.Mesh(new T.CylinderGeometry(0.52, 0.52, 0.36, 20, 1, false, 0, 0.9), lam('#f2b600')); wedge.position.y = 0.18; hat.add(wedge);
+    B(0.62, 0.08, 0.05, bas('#3a0a2a'), 0, 0.74, 0.55, g).rotation.z = -0.1; const mo = S(0.1, bas('#7a3a00'), 0.38, 0.85, 0.5, g, 8); mo.scale.set(1.6, 0.6, 0.5);
+  } else if (id === 'mumbles') { g = M.enemy('mummy').userData.g; g.scale.setScalar(1.9); const crown = new T.Group(); crown.position.set(0, 1.95, 0); g.add(crown); B(0.7, 0.4, 0.5, lam('#2a5adf'), 0, 0, -0.05, crown); B(0.72, 0.1, 0.52, lam('#e2b84a'), 0, 0.15, -0.05, crown); C(0.08, 0.3, lam('#e2b84a'), 0, 0.4, 0.15, crown); }
   else if (id === 'mandrake') {
     g = new T.Group(); C(1.6, 0.7, lam('#7a4a2a'), 0, 0, 0, g, 1.3); C(1.5, 0.08, lam('#3a2a1a'), 0, 0.7, 0, g);
     for (let i = 0; i < 7; i++) { const l = B(0.5, 0.06, 1.8, lam('#3fbf4f'), Math.cos(i) * 0.7, 0.9, Math.sin(i) * 0.7, g); l.rotation.y = i * 0.9; l.rotation.x = 0.5; }
@@ -167,6 +184,10 @@ M.candy = function () {
 /* ---------- props ---------- */
 const W1 = '#8a5a3a', W2 = '#5e3a22';
 M.PROP = {
+  console(g) { B(1.4, 0.9, 0.7, '#2f3d5c', 0, 0, 0, g); const sc = B(1.2, 0.7, 0.08, bas('#3ff0ff'), 0, 1.0, -0.15, g); sc.rotation.x = -0.25; B(1.2, 0.06, 0.4, '#1d2a44', 0, 0.9, 0.1, g); for (let i = 0; i < 4; i++) S(0.06, bas(['#ff4d6d', '#ffe14d', '#4ade80', '#3fa8ff'][i]), -0.4 + i * 0.27, 0.97, 0.15, g, 6); return [1.4, 0.7]; },
+  tank(g) { C(0.55, 0.2, '#3a4a6a', 0, 0, 0, g); mesh(cyl(0.48, 0.48, 1.7, 18), new T.MeshLambertMaterial({ color: '#7fffd4', emissive: '#1a8a6a', transparent: true, opacity: 0.55 }), 0, 1.05, 0, g); C(0.55, 0.2, '#3a4a6a', 0, 1.9, 0, g); S(0.2, bas('#c8ffef'), 0, 0.8, 0.1, g, 8); S(0.12, bas('#c8ffef'), 0.15, 1.3, -0.1, g, 8); return [1.1, 1.1]; },
+  cheese(g) { const c = mesh(new T.CylinderGeometry(0.75, 0.75, 0.6, 24, 1, false, 0, 5.2), lam('#ffd23f'), 0, 0.3, 0, g); c.rotation.y = 0.4; [[0.3, 0.3, 0.6], [-0.4, 0.42, 0.52], [0.1, 0.2, -0.72]].forEach((p) => S(0.11, lam('#e0a800'), p[0], p[1], p[2], g, 8)); return [1.5, 1.5]; },
+  robot(g) { const m = '#9fb4d8'; S(0.5, m, 0, 0.55, 0, g, 14).scale.set(1, 0.9, 1.3); S(0.32, m, 0, 0.75, 0.6, g, 12); for (const sx of [-1, 1]) { S(0.17, '#c8d4ea', sx * 0.26, 1.08, 0.5, g, 10).scale.z = 0.35; S(0.06, bas('#3a4a6a'), sx * 0.13, 0.82, 0.88, g, 6); } S(0.08, '#ff8fb1', 0, 0.74, 0.93, g, 6); return [1.1, 1.4]; },
   chair(g) { B(0.6, 0.08, 0.6, '#8a2a4a', 0, 0.45, 0, g); B(0.6, 0.7, 0.1, '#8a2a4a', 0, 0.5, -0.26, g); for (const [x, z] of [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25]]) B(0.07, 0.45, 0.07, W2, x, 0, z, g); return [0.7, 0.7]; },
   table(g) { B(2.2, 0.1, 1.1, W1, 0, 0.8, 0, g); for (const [x, z] of [[-1, -0.45], [1, -0.45], [-1, 0.45], [1, 0.45]]) B(0.1, 0.8, 0.1, W2, x, 0, z, g); B(2.25, 0.03, 0.6, '#f0e6d0', 0, 0.9, 0, g); C(0.06, 0.3, '#f5f0d8', -0.5, 0.92, 0, g); C(0.06, 0.3, '#f5f0d8', 0.5, 0.92, 0, g); return [2.3, 1.2]; },
   vase(g) { C(0.22, 0.5, '#3f7fbf', 0, 0, 0, g, 0.3); C(0.12, 0.3, '#3f7fbf', 0, 0.5, 0, g, 0.22); return [0.6, 0.6]; },

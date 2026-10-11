@@ -236,6 +236,7 @@ function doPlunge(b) {
     if (e.k === 'shades' && e.sh && e.st !== 'tug') cand(e.x, e.z, () => { e.sh = 0; out({ e: 'shadesoff', id: e.id, x: e.x, z: e.z }); stun(e, 1.2, 'plunge'); }, 2);
     if (e.k === 'armor' && !e.free && e.st !== 'tug') cand(e.x, e.z, () => { e.free = 1; e.sh = 0; out({ e: 'helmet', id: e.id, x: e.x, z: e.z }); stun(e, 3.2, 'plunge'); }, 2);
     if (e.k === 'boss' && e.b === 'souffle' && e.st === 'stuck') cand(e.x, e.z, () => { out({ e: 'hatoff', id: e.id, x: e.x, z: e.z }); bossOpen(e); }, 3);
+    if (e.k === 'boss' && e.b === 'roborat' && e.st === 'overheat') cand(e.x, e.z, () => { out({ e: 'battery', id: e.id, x: e.x, z: e.z }); bossOpen(e); }, 3);
   }
   const P = W.L.puz, Z = W.puz;
   if (P && Z && !Z.solved) {
@@ -515,10 +516,10 @@ function entStep(e, dt) {
 /* ---------------- bosses ---------------- */
 function bossFlash(e) {
   if (e.st === 'dizzy' || e.st === 'exposed') return true;
-  if (e.b === 'mandrake') return 'bulb';
+  if (e.b === 'mandrake' || (e.b === 'cheddar' && e.bulbs)) return 'bulb';
   return 'boss';
 }
-function bossOpen(e) { if (e.st === 'open' || e.st === 'tug') return; e.st = 'open'; e.t = asst() ? 7 : 5; e.tt = 0; e.vx = e.vz = 0; W.tele = W.tele.filter((t) => t.own !== e.id); out({ e: 'bossopen', x: e.x, z: e.z }); if (e.bulbs) e.bulbs = null; }
+function bossOpen(e) { if (e.st === 'open' || e.st === 'tug') return; e.hid = 0; e.st = 'open'; e.t = asst() ? 7 : 5; e.tt = 0; e.vx = e.vz = 0; W.tele = W.tele.filter((t) => t.own !== e.id); out({ e: 'bossopen', x: e.x, z: e.z }); if (e.bulbs) e.bulbs = null; }
 Sim.bossOpen = bossOpen;
 function bossBreak(e, timeout) {
   e.cb.forEach((id) => { W.btug[id] = 0; }); e.cb = []; e.tt = 0; e.slam *= 0.5;
@@ -547,7 +548,7 @@ function bossStep(e, dt) {
   if (e.st === 'recover') { e.vx *= 0.9; e.vz *= 0.9; moveEnt(e, dt); if (e.t <= 0) { e.st = 'idle'; e.t = 0.6; } return; }
   if (!b) return;
   // touch damage
-  if (['dash', 'idle', 'pound'].indexOf(e.st) >= 0 || e.b !== 'mandrake') { for (const o of alive()) if (dist(e.x, e.z, o.x, o.z) < 1.4 && e.st !== 'dizzy' && e.st !== 'stuck' && e.st !== 'rest' && e.st !== 'exposed') hurt(o, 1, e.x, e.z); }
+  if (['dash', 'idle', 'pound'].indexOf(e.st) >= 0 || e.b !== 'mandrake') { for (const o of alive()) if (dist(e.x, e.z, o.x, o.z) < 1.4 && !e.hid && e.st !== 'dizzy' && e.st !== 'stuck' && e.st !== 'rest' && e.st !== 'exposed' && e.st !== 'overheat') hurt(o, 1, e.x, e.z); }
   switch (e.b) {
     case 'waltzy': case 'grumbleton': {
       if (e.st === 'idle') { steer(e, b.x * 0.4, b.z * 0.4 - 2, 2 * sp, dt); moveEnt(e, dt); if (e.t <= 0) {
@@ -584,6 +585,34 @@ function bossStep(e, dt) {
       else if (e.st === 'vines') { if (e.t <= 0) { e.st = 'idle'; e.t = 2.4 * tl; if (e.ph >= 3 && Math.random() < 0.5) summon('bat', 2, e); } }
       break;
     }
+    case 'roborat': { // MECHA-RATITA 3000 (DLC): laser fans, cheese bombs, a charge that ends in an OVERHEAT (PLUNGER the battery)
+      if (e.st === 'idle') { steer(e, b.x * 0.5, b.z * 0.5 - 1, 1.8 * sp, dt); moveEnt(e, dt); face(e, b); if (e.t <= 0) {
+        const pat = ['laser', 'bombs', 'charge'][e.pat++ % 3];
+        if (pat === 'laser') { e.st = 'laser'; e.t = 1.1 * tl; face(e, b); const n = e.ph === 1 ? 3 : 5; for (let i = 0; i < n; i++) lineTele(e, e.ang + (i - (n - 1) / 2) * 0.42, 16, e.t, 0.9, 2); out({ e: 'charge', x: e.x, z: e.z }); }
+        else if (pat === 'bombs') { e.st = 'bombs'; e.t = 1.2 * tl; alive().forEach((o) => ringTele(o.x, o.z, 1.6, e.t, 2, e.id)); for (let i = 0; i < e.ph; i++) { const p = spawnPoint(0); ringTele(p.x, p.z, 1.6, e.t, 2, e.id); } out({ e: 'throw', x: e.x, z: e.z }); }
+        else { e.st = 'aim'; e.t = 1.0 * tl; face(e, b); lineTele(e, e.ang, 16, e.t, 1.3, 0); }
+      } }
+      else if (e.st === 'laser') { e.vx = e.vz = 0; if (e.t <= 0) { e.st = 'idle'; e.t = 1.5 * tl; out({ e: 'zap', x: e.x, z: e.z }); } }
+      else if (e.st === 'bombs') { e.vx *= 0.8; e.vz *= 0.8; if (e.t <= 0) { e.st = 'idle'; e.t = 1.3; out({ e: 'quake', x: e.x, z: e.z }); } }
+      else if (e.st === 'aim') { e.vx = e.vz = 0; if (e.t <= 0) { e.st = 'dash'; e.t = 1.2; e.vx = Math.sin(e.ang) * 13 * sp; e.vz = Math.cos(e.ang) * 13 * sp; } }
+      else if (e.st === 'dash') { e.x += e.vx * dt; e.z += e.vz * dt; const L = W.L; if (Math.abs(e.x) > L.hw - 1.4 || Math.abs(e.z) > L.hd - 1.4 || e.t <= 0) { clampIn(e, 1.4); e.vx = e.vz = 0; e.st = 'overheat'; e.t = A ? 6 : 4.5; out({ e: 'overheat', x: e.x, z: e.z }); out({ e: 'quake', x: e.x, z: e.z }); } }
+      else if (e.st === 'overheat') { e.vx = e.vz = 0; if (e.t <= 0) { e.st = 'idle'; e.t = 1; if (e.ph >= 2) summon('swarm', 3, e); } }
+      break;
+    }
+    case 'cheddar': { // The Cheddar Phantom (DLC): splits into 3 moving cheese wheels (DARK finds the real one) or throws cheese orbs (BLOW them back)
+      if (e.st === 'idle') { const a = W.t * 0.6; steer(e, Math.sin(a) * 5, -1.5 + Math.cos(a) * 2.5, 2.2 * sp, dt); moveEnt(e, dt); face(e, b); if (e.t <= 0) {
+        if (e.pat++ % 2 === 0) { e.st = 'split'; e.t = A ? 13 : 10; e.hid = 1; const real = Math.random() * 3 | 0, a0 = Math.random() * TAU; e.bulbs = [0, 1, 2].map((i) => ({ a: a0 + i * TAU / 3, x: 0, z: 0, real: i === real ? 1 : 0, rev: 0, pop: 0 })); e.sub = 2.2; out({ e: 'split', x: e.x, z: e.z }); }
+        else { e.st = 'orbs'; e.t = 0.6; e.cnt = e.ph === 3 ? 4 : 3; }
+      } }
+      else if (e.st === 'split') {
+        e.vx = e.vz = 0; const spin = (A ? 0.35 : 0.5) * (1 + (e.ph - 1) * 0.25);
+        if (e.bulbs) { e.bulbs.forEach((u) => { u.a += dt * spin; u.x = Math.sin(u.a) * 6; u.z = -1 + Math.cos(u.a) * 4.4; if (u.rev > 0) u.rev -= dt; if (u.real) { e.x = u.x; e.z = u.z; } }); }
+        e.sub -= dt; if (e.sub <= 0) { e.sub = 2.6 * tl; const t2 = bvec(e); if (t2) ringTele(t2.x, t2.z, 1.5, 1.0 * tl, 2, e.id); }
+        if (e.t <= 0) { e.bulbs = null; e.hid = 0; e.st = 'idle'; e.t = 1.4; out({ e: 'unsplit', x: e.x, z: e.z }); if (e.ph >= 2) summon('swarm', 2 + e.ph, e); }
+      }
+      else if (e.st === 'orbs') { e.vx *= 0.9; e.vz *= 0.9; if (e.t <= 0) { if (e.cnt-- > 0) { const tb = bvec(e); const a = angTo(e.x, e.z, tb.x, tb.z); W.proj.push({ id: nid(), k: 'orb', x: e.x, z: e.z, vx: Math.sin(a) * 3.6, vz: Math.cos(a) * 3.6, refl: 0, life: 6, ow: e.id, home: tb.id, big: 1, cheese: 1 }); out({ e: 'cast', x: e.x, z: e.z }); e.t = 1.2 * tl; } else { e.st = 'idle'; e.t = 1.8; } } }
+      break;
+    }
     case 'mumbles': {
       if (e.st === 'idle') { steer(e, b.x * 0.5, b.z * 0.5, 1.1 * sp, dt); moveEnt(e, dt); face(e, b); if (e.t <= 0) { e.st = 'beam'; e.t = 1.25 * tl; face(e, b); lineTele(e, e.ang, 18, e.t, 1.2, 2); if (e.ph >= 2) { lineTele(e, e.ang + 0.6, 18, e.t, 1.2, 2); lineTele(e, e.ang - 0.6, 18, e.t, 1.2, 2); } } }
       else if (e.st === 'beam') { e.vx = e.vz = 0; if (e.t <= 0) { e.st = 'rest'; e.t = A ? 6 : 4.5; e.wrap = 1; out({ e: 'rest', x: e.x, z: e.z }); if (e.ph >= 2) summon('mummy', e.ph - 1, e); } }
@@ -606,7 +635,7 @@ function projStep(dt) {
     if (!dead && p.refl) for (const e of W.ents) {
       if (e.st === 'tug' || e.st === 'hide') continue;
       const r = e.k === 'boss' ? 1.6 : (EN[e.k] || EN.goob).r + 0.45; if (dist(p.x, p.z, e.x, e.z) > r) continue;
-      if (e.k === 'boss') { if (e.b === 'pagewhirl' || e.b === 'grumbleton') bossOpen(e); else out({ e: 'block', why: 'boss' }); }
+      if (e.k === 'boss') { if (e.b === 'pagewhirl' || e.b === 'grumbleton' || (e.b === 'cheddar' && !e.hid)) bossOpen(e); else out({ e: 'block', why: 'boss' }); }
       else if (e.k === 'armor' && !e.free) { out({ e: 'clang', x: e.x, z: e.z }); }
       else { if (e.k === 'skeleton') { e.st = 'bones'; e.t = 5; } else { e.sh = 0; e.wrap = 0; stun(e, 3.2, 'hit'); } }
       dead = true; break;
