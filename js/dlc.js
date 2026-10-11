@@ -5,7 +5,7 @@
 'use strict';
 const SP = window.SP = window.SP || {};
 const D = SP.DLC = { KEY: 'grokDLC.spooks.ratita_industries_super_pack_e', NAME: 'Ratita Industries Super Pack', PRICE: 25,
-  SHOP: 'https://lizethbran13-cmyk.github.io/grok-arcade/?dlc=spooks', hostShare: false };
+  SHOP: 'https://lizethbran13-cmyk.github.io/grok-arcade/', hostShare: false };
 D.mine = function () { try { return !!localStorage.getItem(D.KEY); } catch (e) { return false; } };
 // usable now: you own it, or you are a guest in a room whose host owns it
 D.on = function () { return D.mine() || D.hostShare; };
