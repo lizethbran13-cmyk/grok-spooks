@@ -18,7 +18,7 @@ function syncPlayers() {
 N.allDown = function () { if (!GS.me || !GS.me.down) return false; for (const k in GS.others) { const o = GS.others[k]; if (o.s && o.rid === GS.rid && !o.s.down) return false; } return true; };
 function common(room) {
   room.on('players', () => { if (N.room === room) syncPlayers(); });
-  room.on('join', (p) => { if (N.room !== room) return; G.toast(p.name + ' joined! \uD83D\uDC7B'); Snd.fx('join'); if (room.isHost && GS.rid) room.sendTo(p.pid, { t: 'room', rid: GS.rid, from: null, o: G.roomOpts(GS.rid), el: 0 }); });
+  room.on('join', (p) => { if (N.room !== room) return; if (room.isHost) { room.sendTo(p.pid, { t: 'dlc', on: SP.DLC.mine() ? 1 : 0 }); if (SP.SEM) SP.SEM.playerJoined(p.pid); } G.toast(p.name + ' joined! \uD83D\uDC7B'); Snd.fx('join'); if (room.isHost && GS.rid) room.sendTo(p.pid, { t: 'room', rid: GS.rid, from: null, o: G.roomOpts(GS.rid), el: 0 }); });
   room.on('leave', (p) => { if (N.room !== room) return; G.toast(p.name + ' left. The hunt goes on!', true); Snd.fx('leave'); delete GS.others[p.pid]; const W = Sim.W(); if (W && W.bodies[p.pid]) delete W.bodies[p.pid]; G.UI && G.UI.hud(); });
 }
 function startGameUI() { GS.ui = 'game'; G.UI.showScreens(); }
@@ -34,6 +34,7 @@ N.host = function (code) {
   });
   room.on('message', (d, from) => {
     if (!d || typeof d !== 'object' || N.room !== room || from === GS.pid) return;
+    if (SP.SEM && SP.SEM.onMsg(d, from)) return;
     const o = GS.others[from];
     switch (d.t) {
       case 'p': if (o && d.s && d.rid === GS.rid) { if (!o.s && d.s) {} o.s = clean(d.s); o.rid = d.rid; } else if (o && d.s) { o.rid = d.rid; o.s = clean(d.s); } break;
@@ -55,6 +56,8 @@ N.join = function (code) {
   room.on('open', () => { if (N.room !== room) return; GN.saveProfile(G.myName(), G.save().color); GS.role = 'client'; msg('Connected! Waiting for the host\u2026', true); Snd.fx('join'); G.UI.codeBadge(room.code); syncPlayers(); });
   room.on('message', (d) => {
     if (!d || typeof d !== 'object' || N.room !== room) return;
+    if (d.t === 'dlc') { SP.DLC.hostShare = !!d.on; return; }
+    if (SP.SEM && SP.SEM.onMsg(d)) return;
     switch (d.t) {
       case 'room': G.UI.closeAll(); G.enterRoom(String(d.rid), d.from, d.o || {}, !!d.el); startGameUI(); break;
       case 's': {
@@ -76,6 +79,7 @@ N.join = function (code) {
     N.room = null; try { room.leave(); } catch (er) { /* ignore */ }
     for (const k in GS.others) delete GS.others[k];
     G.UI.codeBadge(null);
+    SP.DLC.hostShare = false; if (SP.SEM && SP.SEM.on) SP.SEM.stop(true);
     G.toast('The host left \u2014 you keep hunting solo. Your save is safe!', true);
     GS.role = 'solo';
     if (GS.rid) { const keep = GS.me ? { hp: GS.me.hp, x: GS.me.x, z: GS.me.z } : null; G.goRoom(GS.rid, null); if (keep && GS.me) { GS.me.hp = keep.hp; } }
@@ -83,6 +87,7 @@ N.join = function (code) {
   room.start();
 };
 N.leave = function (silent) {
+  SP.DLC.hostShare = false;
   const r = N.room; N.room = null;
   if (r) try { r.leave(); } catch (e) { /* ignore */ }
   for (const k in GS.others) delete GS.others[k];

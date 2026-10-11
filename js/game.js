@@ -304,6 +304,7 @@ let last = 0;
 function loop(t) {
   requestAnimationFrame(loop);
   const dt = Math.min(0.05, (t - (last || t)) / 1000); last = t; GS.time += dt;
+  if (SP.SEM && SP.SEM.on) { SP.SEM.tick(dt, t / 1000); return; } // Spook 'Em (DLC) has its own scene
   if (GS.ui === 'game' && !GS.paused) G.frame(dt);
   else if (GS.ui === 'game' && GS.paused && GS.role !== 'solo') G.frame(dt); // online games keep running while a menu is open
   if (Sim.W() && GS.me) {

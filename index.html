@@ -7,7 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#1a1030" />
   <title>GROK SPOOKS</title>
-  <link rel="stylesheet" href="style.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=2" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a1030'/%3E%3Cpath d='M14 54V28a18 18 0 0 1 36 0v26l-6-5-6 5-6-5-6 5-6-5z' fill='%23e8fff0'/%3E%3Ccircle cx='26' cy='28' r='4' fill='%231a1030'/%3E%3Ccircle cx='38' cy='28' r='4' fill='%231a1030'/%3E%3C/svg%3E" />
 </head>
 <body>
@@ -61,6 +61,7 @@
       <div class="btncol">
         <button id="bPlay" class="btn primary" type="button">PLAY</button>
         <button id="bOnline" class="btn blue" type="button">PLAY WITH FRIENDS</button>
+        <button id="bSem" class="btn sem" type="button">&#128123; SPOOK &rsquo;EM <small id="semTag">DLC</small></button>
         <button id="bHow" class="btn alt small" type="button">HOW TO PLAY</button>
         <label class="toggle"><input type="checkbox" id="assistT" /> <span>Assist mode: +2 hearts, half damage, slower attacks, faster vacuum</span></label>
       </div>
@@ -97,6 +98,7 @@
           <button id="bPGal" class="btn alt small" type="button">&#128123; GHOSTS</button>
           <button id="bPHow" class="btn alt small" type="button">&#10067; HOW TO</button>
         </div>
+        <button id="bPSem" class="btn sem small" type="button">&#128123; SPOOK &rsquo;EM</button>
         <button id="bPCp" class="btn alt small" type="button">BACK TO ROOM DOOR</button>
         <label class="toggle"><input type="checkbox" id="assistT2" /> <span>Assist mode</span></label>
         <button id="bPQuit" class="btn red small" type="button">QUIT TO TITLE</button>
@@ -134,15 +136,17 @@
   <script src="three.min.js"></script>
   <script src="peerjs.min.js"></script>
   <script src="grok-net.js"></script>
-  <script src="js/data.js?v=1"></script>
-  <script src="js/room.js?v=1"></script>
-  <script src="js/models.js?v=1"></script>
-  <script src="js/audio.js?v=1"></script>
-  <script src="js/sim.js?v=1"></script>
-  <script src="js/view.js?v=1"></script>
-  <script src="js/game.js?v=1"></script>
-  <script src="js/net.js?v=1"></script>
-  <script src="js/ui.js?v=1"></script>
+  <script src="js/dlc.js?v=2"></script>
+  <script src="js/data.js?v=2"></script>
+  <script src="js/room.js?v=2"></script>
+  <script src="js/models.js?v=2"></script>
+  <script src="js/audio.js?v=2"></script>
+  <script src="js/sim.js?v=2"></script>
+  <script src="js/view.js?v=2"></script>
+  <script src="js/game.js?v=2"></script>
+  <script src="js/net.js?v=2"></script>
+  <script src="js/ui.js?v=2"></script>
+  <script src="js/spookem.js?v=2"></script>
   <script>SP.G.boot();</script>
 </body>
 </html>

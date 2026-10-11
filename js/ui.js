@@ -18,7 +18,9 @@ function open(name) { GS.ui = name; UI.showScreens(); }
 G.startRoom = function () { const s = G.save(); if (!s.tut) return 'porch'; const r = SP.room(s.cur); if (r && G.areaOpen(r.a) && !r.boss) return r.id; return 'foyer'; };
 
 /* ---------------- title ---------------- */
+UI.title = () => title();
 function title() {
+  if ($('semTag')) $('semTag').textContent = SP.DLC.mine() ? 'NEW' : '\uD83D\uDD12 DLC';
   const s = G.save();
   $('nameIn').value = s.name || '';
   const row = $('colorRow'); row.innerHTML = '';
@@ -192,6 +194,8 @@ UI.init = function () {
   on('bHowBack', () => { open(GS.howBack || 'title'); });
   on('bHost', () => { saveName(); G.N.host(); });
   on('bJoin', () => { saveName(); G.N.join($('codeIn').value); });
+  on('bSem', () => { saveName(); G.persist(); SP.SEM.start(); });
+  on('bPSem', () => { if (GS.role === 'client') { G.toast('Ask the host to start SPOOK \u2019EM \uD83D\uDC7B', true); return; } SP.SEM.start(); });
   on('bOnlineBack', () => { G.N.leave(); open('title'); title(); });
   $('assistT').addEventListener('change', () => { G.save().assist = $('assistT').checked; G.persist(); });
   $('assistT2').addEventListener('change', () => { G.save().assist = $('assistT2').checked; G.persist(); if (GS.me) GS.me.hp = Math.min(GS.me.hp, G.maxHp()); UI.hud(); });
